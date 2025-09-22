@@ -1,5 +1,9 @@
 # n8n Automated Job Search Digest
 
+![n8n](https://img.shields.io/badge/automation-n8n-blue) 
+![APIs](https://img.shields.io/badge/jobs-API-green) 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
+
 Automates multi-source job discovery and sends a scored email digest every 6 hours using **n8n**. The workflow fetches jobs from **JSearch (RapidAPI)** and **RemoteOK**, merges & de-duplicates results, **filters + scores** roles against your skills, then **emails a digest** via Gmail.
 
 > ⚡️ This is a transferable automation pattern you can adapt for lead gen, competitor monitoring, or compliance checks.
@@ -15,18 +19,23 @@ Automates multi-source job discovery and sends a scored email digest every 6 hou
 
 ---
 
-## 🧩 Architecture
+## 🛠 Architecture
+
+The workflow runs every 6 hours, fetches jobs from multiple sources, merges and deduplicates them, applies a keyword-based scoring system, and emails a digest.
+
 ```mermaid
-flowchart LR
-  Cron[Every 6 hours] --> J[JSearch API]
-  Cron --> R[RemoteOK API]
-  J --> M[Merge + Dedup]
-  R --> M
-  M --> S[Filter + Score]
-  S --> D[Aggregate Digest HTML]
-  D --> G[Gmail Send]
+graph LR
+  A[Every 6 hours] --> B[JSearch API]
+  A --> C[RemoteOK API]
+  B --> D[Merge + Dedup]
+  C --> D[Merge + Dedup]
+  D --> E[Filter + Score]
+  E --> F[Aggregate Digest HTML]
+  F --> G[Gmail Send]
+
 ```
-*(Add a screenshot in `docs/img/workflow.png` and link to it here.)*
+*![Workflow Screenshot](docs/img/workflow.png)
+*
 
 ---
 
@@ -92,6 +101,12 @@ In your **Aggregate Digest** Function node, paste/adapt the code in `workflow/em
    └─ img/
       └─ workflow.png            # optional screenshot
 ```
+## Setup
+1. Clone repo  
+2. Install n8n (Docker or npm)  
+3. Import `workflow/job_digest_workflow.json` into n8n  
+4. Add your API keys and Gmail creds to `.env`  
+5. Start n8n and activate workflow  
 
 ---
 
@@ -108,3 +123,5 @@ In your **Aggregate Digest** Function node, paste/adapt the code in `workflow/em
 
 ## 📝 License
 MIT — see `LICENSE`.
+
+🔗 Featured on [LinkedIn](https://www.linkedin.com/posts/rowan-celestino_automation-ai-dataanalytics-activity-7376020052971565056-w-I3?utm_source=share&utm_medium=member_desktop&rcm=ACoAACzdnukBMOVGkHR3b2WrZfK3RYZkxBuSOIU) — project walkthrough & discussion
