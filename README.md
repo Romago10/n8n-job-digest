@@ -41,6 +41,9 @@ graph LR
 
 ## 📩 Example Digest
 
+<img width="1588" height="584" alt="ea113a07-7c38-4944-a251-52a0cb68864d" src="https://github.com/user-attachments/assets/e3ece613-7d65-4ad2-a09f-37c61b033e8b" />
+
+
 Here’s a sample of the email digest this workflow generates (simplified & redacted):
 
 🔹 Data Analyst — RemoteOK
