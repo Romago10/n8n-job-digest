@@ -119,6 +119,12 @@ In your **Aggregate Digest** Function node, paste/adapt the code in `workflow/em
 ## 📈 Resume/Portfolio Angle
 *Built an n8n automation that fetches, merges, scores, and emails job leads every 6 hours; reduced manual search time ~80% and demonstrated portable automation skills (APIs, scoring, HTML email).*
 
+## 🔮 Future Enhancements
+- Add salary/location filters  
+- Slack/Discord notifications instead of email  
+- Save results into a database for trend analysis  
+- Power BI dashboard from job data  
+
 ---
 
 ## 📝 License
