@@ -1,0 +1,8 @@
+.env
+.n8n/
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+workflow/*-secrets.json
+*.local.json
