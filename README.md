@@ -39,6 +39,36 @@ graph LR
 
 ---
 
+## 📩 Example Digest
+
+Here’s a sample of the email digest this workflow generates (simplified & redacted):
+
+🔹 Data Analyst — RemoteOK
+Score: 9/10
+Company: Remote First Inc.
+Link: https://remoteok.io/jobs/12345
+
+🔹 Business Intelligence Analyst — JSearch
+Score: 8/10
+Company: AnalyticsPro
+Link: https://jsearch.com/job/67890
+
+🔹 Junior Data Engineer — RemoteOK
+Score: 7/10
+Company: CloudWorks
+Link: https://remoteok.io/jobs/22222
+
+🔹 Reporting Analyst — JSearch
+Score: 7/10
+Company: InsightCorp
+Link: https://jsearch.com/job/33333
+
+---
+
+**Subject:** Your Job Digest — 4 New Matches (Scored vs Skills)
+
+**Body:**
+
 ## 🚀 Quick Start
 
 ### 1) Prerequisites
