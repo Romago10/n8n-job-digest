@@ -118,21 +118,7 @@ In your **Aggregate Digest** Function node, paste/adapt the code in `workflow/em
 
 ---
 
-## 🛠 Project Structure
 
-```
-.
-├─ README.md
-├─ LICENSE
-├─ .gitignore
-├─ .env.example
-├─ workflow/
-│  ├─ job_digest_workflow.json   # export yours from n8n (no secrets)
-│  ├─ scoring.js                 # code snippet for scoring node
-│  └─ email_template.js          # code snippet for email digest node
-└─ docs/
-   └─ img/
-      └─ workflow.png            # optional screenshot
 ```
 ## Setup
 1. Clone repo  
