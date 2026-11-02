@@ -1,0 +1,9 @@
+{
+  "name": "n8n-job-digest-prototype",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test prototype/*.test.js"
+  },
+  "engines": { "node": ">=20" }
+}
