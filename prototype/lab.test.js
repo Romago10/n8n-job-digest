@@ -5,7 +5,7 @@ import {runLab} from "./lab.js";
 import {validateProfile} from "./validation.js";
 import {normalizeJob,scoreJob,canonicalKey} from "./engine.js";
 test("valid profile accepted; invalid weights rejected",()=>{
- assert.equal(validateProfile({...profile}),profile);
+ assert.deepEqual(validateProfile({...profile}),profile);
  assert.throws(()=>validateProfile({...profile,weights:{skills:-1,direction:20,salary:20,workMode:20}}));
 });
 test("completeness measures known fields separately",()=>{
