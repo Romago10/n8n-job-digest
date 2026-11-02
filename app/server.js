@@ -58,7 +58,7 @@ return http.createServer(async(req,res)=>{
     if(url.pathname==="/api/profile"&&req.method==="PUT"){
       const p=await body(req);
       if(!Array.isArray(p.skills)||!Array.isArray(p.targetTitles)||!Array.isArray(p.workModes)||!Number.isFinite(p.preferredSalary)||p.preferredSalary<0||!p.weights||typeof p.weights!=="object")return send(res,400,{error:"Invalid profile"});
-      db.prepare("UPDATE settings SET profile=? WHERE id=1").run(JSON.stringify({...defaults,...p}));return send(res,200,getProfile());
+      db.prepare("UPDATE settings SET profile=? WHERE id=1").run(JSON.stringify({...defaults,...p}));db.exec("DELETE FROM evaluations");return send(res,200,getProfile());
     }
     if(url.pathname==="/api/jobs"&&req.method==="POST"){
       const raw=await body(req),job=normalizeJob(raw,"manual");
