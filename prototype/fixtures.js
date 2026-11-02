@@ -1,0 +1,8 @@
+// Completely fictional employers and domains. No live jobs or external requests.
+export const jobs=[
+ {title:"Junior Data Engineer",company:"Sample North Data",description:"Build SQL and Python ingestion pipelines and batch ETL, document APIs, and monitor warehouse data quality. One year relevant experience desirable.",workMode:"remote",salaryMin:80000,salaryMax:96000,salaryPeriod:"year",url:"https://example.org/fixtures/junior-data-engineer"},
+ {title:"AI Workflow Specialist",company:"Sample Flow Labs",description:"Prototype n8n automation workflows, integrate APIs, write Python utilities, and document human review steps.",workMode:"hybrid",location:"Royal Oak, MI",salaryMin:79000,salaryMax:94000,salaryPeriod:"year",url:"https://example.org/fixtures/ai-workflow"},
+ {title:"BI Reporting Analyst",company:"Sample Metric Works",description:"Own Power BI dashboards, Excel reporting, SQL queries, and partner with business teams.",workMode:"remote",salaryMin:72000,salaryMax:88000,salaryPeriod:"year",url:"https://example.org/fixtures/bi-analyst"},
+ {title:"Senior ML Infrastructure Lead",company:"Sample Cloud ML",description:"Lead Kubernetes GPU deployment and distributed training infrastructure with 8+ years production experience.",workMode:"onsite",location:"Seattle, WA",salaryMin:170000,salaryMax:210000,salaryPeriod:"year",url:"https://example.org/fixtures/ml-lead"},
+ {title:"Data Operations Coordinator",company:"Sample Civic Insights",description:"Maintain SQL reporting datasets, document ETL pipelines, coordinate data quality review. Salary not supplied.",workMode:"unknown",url:"https://example.org/fixtures/data-ops"}
+];
