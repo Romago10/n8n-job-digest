@@ -6,3 +6,5 @@ dist/
 Thumbs.db
 workflow/*-secrets.json
 *.local.json
+app/*.db
+app/*.db-*
