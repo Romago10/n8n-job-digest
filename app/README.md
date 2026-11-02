@@ -43,3 +43,11 @@ The application now includes five fictional job fixtures in `prototype/fixtures.
 **Model extension boundary:** `prototype/evaluation-contract.js` defines a provider-independent prompt, payload, and output validator for future model integration. No provider is configured or called. The offline evaluator is a placeholder for testing the data flow; its explanation is based on explicit keyword overlap and must not be presented as independent AI reasoning. A future model adapter should use strict JSON validation, source grounding, timeouts and manual approval.
 
 **Safety and operational scope:** The fixture companies and URLs are invented; job links are not verified openings. No API keys, user accounts, deployments, scraping, schedules, or email sends. Existing stored evaluations are invalidated when candidate settings are modified. An integrated runtime test was attempted but unavailable due to network access restrictions; run `npm test` locally before relying on the app.
+
+## Reliability and evaluation lab
+
+The **Evaluation Lab** tab compares a baseline score and the offline evaluator against five provisional human labels on fictional listings. Both evaluators share the same core heuristic: the comparison is a diagnostic baseline, **not** independent model accuracy. Run `npm test` after cloning. The lab endpoint is `GET /api/lab`.
+
+Profile writes now validate all skills, role titles, work modes, salary preference and scoring weights. The score API separately reports `completeness`, the proportion of scoring dimensions with observed inputs; this is **not** evidence confidence. Opportunity search preserves focus, and the details panel follows current filters.
+
+**Known remaining limitations:** unverified runtime tests in this environment; same-company/title/location deduplication can conflate distinct openings; no independent LLM provider; no genuine human-labeled benchmark; no historical evaluation versioning; no live API adapters or email sending. Do not deploy publicly or treat the lab agreement as predictive performance.
