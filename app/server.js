@@ -46,7 +46,7 @@ return http.createServer(async(req,res)=>{
       for(const raw of fixtureJobs){const job=normalizeJob(raw,"fictional-fixture");insert.run(canonicalKey(job),JSON.stringify(job));}
       return send(res,200,{ok:true,count:fixtureJobs.length});
     }
-    const evalMatch=url.pathname.match(/^\\/api\\/jobs\\/(\\d+)\\/evaluate$/);
+    const evalMatch=url.pathname.match(new RegExp("^/api/jobs/([0-9]+)/evaluate$"));
     if(evalMatch&&req.method==="POST"){
       const id=Number(evalMatch[1]);const job=allJobs().find(j=>j.id===id);
       if(!job)return send(res,404,{error:"Job not found"});
