@@ -78,6 +78,7 @@ export function scoreJob(job, p = defaultProfile) {
     if (values[key] != null && Number(weight)>0) { weighted += values[key]*Number(weight); used += Number(weight); }
   }
   return {
+    completeness: Object.keys(weights).length ? Math.round(100 * Object.keys(weights).filter(key => values[key] != null).length / Object.keys(weights).length) / 100 : 0,
     score: used ? Math.round(weighted / used * 100) / 10 : null,
     dimensions: values,
     unknown: Object.entries(values).filter(([,v])=>v==null).map(([k])=>k),
