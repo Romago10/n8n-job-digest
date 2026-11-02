@@ -11,9 +11,10 @@ function setPage(p){state.page=p;document.querySelectorAll("nav button").forEach
 document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>setPage(b.dataset.page)));
 function card(title){const c=el("section",{class:"card"});if(title)c.append(el("h3",{text:title}));return c;}
 function render(){
- const titles={dashboard:["Dashboard","Local opportunity overview."],opportunities:["Opportunities","Review, rank, save, and import jobs."],applications:["Applications","Track the progression of saved opportunities."],settings:["Settings","Candidate profile and ranking preferences."]};
+ const titles={lab:["Evaluation Lab","Compare reproducible scoring methods on labeled fictional jobs."],dashboard:["Dashboard","Local opportunity overview."],opportunities:["Opportunities","Review, rank, save, and import jobs."],applications:["Applications","Track the progression of saved opportunities."],settings:["Settings","Candidate profile and ranking preferences."]};
  $("#page-title").textContent=titles[state.page][0];$("#page-description").textContent=titles[state.page][1];
  const c=section();
+ if(state.page==="lab")lab(c);
  if(state.page==="dashboard")dashboard(c);
  if(state.page==="opportunities")opportunities(c);
  if(state.page==="applications")applications(c);
@@ -29,12 +30,12 @@ function dashboard(c){
 }
 function jobButton(j){const b=el("button",{class:"job"+(state.selected===j.id?" selected":"")});b.append(el("div",{class:"jobtop"},[el("strong",{text:j.title}),el("span",{class:"score",text:j.ranking.score==null?"—":j.ranking.score+"/10"})]),el("span",{class:"muted",text:j.company+" · "+j.workMode+" · "+(j.salaryMin==null?"Salary unknown":money(j.salaryMin))+" · "+j.status}));b.onclick=()=>{state.selected=j.id;setPage("opportunities")};return b}
 function opportunities(c){
- const toolbar=el("div",{class:"toolbar"}),search=el("input",{placeholder:"Search job or company","aria-label":"Search jobs",value:state.search});search.oninput=()=>{state.search=search.value;render()};const filter=el("select",{"aria-label":"Status filter"});for(const value of ["all","new","saved","applied","interviewing","offer","rejected","dismissed"]){const option=el("option",{value,text:value});option.selected=value===state.filter;filter.append(option)}filter.onchange=()=>{state.filter=filter.value;render()};toolbar.append(search,filter,button("Add opportunity",()=>showImport(c),"primary"));c.append(toolbar);
+ const toolbar=el("div",{class:"toolbar"}),search=el("input",{placeholder:"Search job or company","aria-label":"Search jobs",value:state.search});search.oninput=()=>{const pos=search.selectionStart;state.search=search.value;render();const next=document.querySelector('input[aria-label="Search jobs"]');next?.focus();next?.setSelectionRange(pos,pos)};const filter=el("select",{"aria-label":"Status filter"});for(const value of ["all","new","saved","applied","interviewing","offer","rejected","dismissed"]){const option=el("option",{value,text:value});option.selected=value===state.filter;filter.append(option)}filter.onchange=()=>{state.filter=filter.value;render()};toolbar.append(search,filter,button("Add opportunity",()=>showImport(c),"primary"));c.append(toolbar);
  const matches=state.jobs.filter(j=>(state.filter==="all"||j.status===state.filter)&&[j.title,j.company].join(" ").toLowerCase().includes(state.search.toLowerCase())).sort((a,b)=>(b.ranking.score??-1)-(a.ranking.score??-1));
  const layout=el("div",{class:"grid2"}),list=card("Jobs ("+matches.length+")");
  if(!matches.length)list.append(el("p",{class:"empty",text:"No opportunities yet. Add one or seed sample jobs from Dashboard."}));
  for(const j of matches)list.append(jobButton(j));
- const j=state.jobs.find(x=>x.id===state.selected)||matches[0],detail=card("Details");
+ const j=matches.find(x=>x.id===state.selected)||matches[0],detail=card("Details");
  if(j){detail.append(el("h3",{text:j.title}),el("p",{class:"muted",text:j.company+" · "+j.location+" · "+j.workMode}),el("p",{text:"Salary: "+money(j.salaryMin)+" – "+money(j.salaryMax)+" ("+j.salaryPeriod+")"}),el("p",{text:"Match score: "+j.ranking.score+"/10 · "+(j.eligibility.eligible?"Eligible":"Excluded: "+j.eligibility.reasons.join(", "))}),el("p",{class:"detail",text:j.description||"No description"}));
  const a=el("a",{href:j.url,target:"_blank",rel:"noopener noreferrer",text:"Open original listing"});detail.append(a);
  const s=el("select",{"aria-label":"Application status"});for(const v of ["new","saved","applied","interviewing","offer","rejected","dismissed"]){const o=el("option",{value:v,text:v});o.selected=j.status===v;s.append(o)}
@@ -57,3 +58,15 @@ function settings(c){const p=state.profile,form=card("Candidate preferences");co
  const info=card("Prototype boundaries");info.append(el("p",{text:"All data stays in a local SQLite file. The email digest and optional AI evaluator are architectural extensions, not active integrations."}));c.append(info);
 }
 load().catch(e=>notice("Unable to load local server: "+e.message));
+
+async function lab(c) {
+ const box=card("Baseline vs offline rules");
+ box.append(el("p",{class:"muted",text:"Both methods currently use related heuristic rules. These are agreement checks against provisional labels, not evidence of AI performance."}));
+ c.append(box);
+ try {
+ const result=await api("/lab");
+ box.append(el("p",{text:"Baseline agreement: "+result.baselineAgreement+"% · Offline rules agreement: "+result.offlineAgreement+"%"}));
+ const table=el("table"),head=el("tr");for(const name of ["Fictional role","Human label","Baseline","Offline","Completeness"])head.append(el("th",{text:name}));table.append(head);
+ for(const row of result.results){const tr=el("tr");for(const value of [row.title,row.expected,row.baseline,row.offline,Math.round(100*row.completeness)+"%"])tr.append(el("td",{text:String(value)}));table.append(tr)}box.append(table);
+ }catch(error){box.append(el("p",{text:error.message}));}
+}
