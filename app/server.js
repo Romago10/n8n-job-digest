@@ -3,17 +3,21 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { jobs as fixtureJobs } from "../prototype/fixtures.js";
+import { evaluateOffline } from "../prototype/offline-evaluator.js";
+import { digestPreview } from "../prototype/digest.js";
 import { profile as defaults } from "../prototype/config.js";
 import { normalizeJob, scoreJob, eligibility, canonicalKey } from "../prototype/engine.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const db = new DatabaseSync(process.env.DB_PATH || path.join(root,"career.db"));
-db.exec("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK (id=1), profile TEXT NOT NULL); CREATE TABLE IF NOT EXISTS jobs (id INTEGER PRIMARY KEY AUTOINCREMENT, fingerprint TEXT UNIQUE NOT NULL, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', notes TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);");
+db.exec("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK (id=1), profile TEXT NOT NULL); CREATE TABLE IF NOT EXISTS jobs (id INTEGER PRIMARY KEY AUTOINCREMENT, fingerprint TEXT UNIQUE NOT NULL, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', notes TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP); CREATE TABLE IF NOT EXISTS evaluations (job_id INTEGER PRIMARY KEY REFERENCES jobs(id), result TEXT NOT NULL, evaluated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);");
 if (!db.prepare("SELECT id FROM settings WHERE id=1").get()) db.prepare("INSERT INTO settings (id,profile) VALUES (1,?)").run(JSON.stringify(defaults));
 const getProfile=()=>JSON.parse(db.prepare("SELECT profile FROM settings WHERE id=1").get().profile);
 const allJobs=()=>db.prepare("SELECT * FROM jobs ORDER BY created_at DESC,id DESC").all().map(row=>{
   const job=JSON.parse(row.payload), p=getProfile();
-  return {...job,id:row.id,status:row.status,notes:row.notes,createdAt:row.created_at,ranking:scoreJob(job,p),eligibility:eligibility(job,p)};
+  const evaluation=db.prepare("SELECT result FROM evaluations WHERE job_id=?").get(row.id);
+  return {...job,id:row.id,status:row.status,notes:row.notes,createdAt:row.created_at,ranking:scoreJob(job,p),eligibility:eligibility(job,p),evaluation:evaluation?JSON.parse(evaluation.result):null};
 });
 const send=(res,status,data)=>{res.writeHead(status,{"content-type":"application/json; charset=utf-8","cache-control":"no-store"});res.end(JSON.stringify(data));};
 async function body(req) {
@@ -36,6 +40,20 @@ return http.createServer(async(req,res)=>{
   const url=new URL(req.url,"http://localhost");
   try{
     if(url.pathname==="/api/jobs"&&req.method==="GET")return send(res,200,allJobs());
+    if(url.pathname==="/api/digest-preview"&&req.method==="GET")return send(res,200,digestPreview(allJobs()));
+    if(url.pathname==="/api/fixtures"&&req.method==="POST"){
+      const insert=db.prepare("INSERT OR IGNORE INTO jobs (fingerprint,payload) VALUES (?,?)");
+      for(const raw of fixtureJobs){const job=normalizeJob(raw,"fictional-fixture");insert.run(canonicalKey(job),JSON.stringify(job));}
+      return send(res,200,{ok:true,count:fixtureJobs.length});
+    }
+    const evalMatch=url.pathname.match(/^\\/api\\/jobs\\/(\\d+)\\/evaluate$/);
+    if(evalMatch&&req.method==="POST"){
+      const id=Number(evalMatch[1]);const job=allJobs().find(j=>j.id===id);
+      if(!job)return send(res,404,{error:"Job not found"});
+      const result=evaluateOffline(job,getProfile());
+      db.prepare("INSERT INTO evaluations (job_id,result) VALUES (?,?) ON CONFLICT(job_id) DO UPDATE SET result=excluded.result,evaluated_at=CURRENT_TIMESTAMP").run(id,JSON.stringify(result));
+      return send(res,200,{mode:"offline-rules-not-llm",result});
+    }
     if(url.pathname==="/api/profile"&&req.method==="GET")return send(res,200,getProfile());
     if(url.pathname==="/api/profile"&&req.method==="PUT"){
       const p=await body(req);
