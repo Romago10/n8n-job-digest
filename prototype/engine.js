@@ -38,6 +38,7 @@ export function normalizeJob(raw, source = "unknown") {
   };
 }
 export function canonicalKey(job) {
+  if (job.title && job.company && job.location) return "identity:" + [job.company, job.title, job.location].map(x => words(x).replace(/\\s+/g," ")).join("|");
   if (job.url) return "url:" + job.url;
   return "job:" + [job.company, job.title, job.location].map(x => words(x).replace(/\s+/g," ")).join("|");
 }
