@@ -3,6 +3,8 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { validateProfile } from "../prototype/validation.js";
+import { runLab } from "../prototype/lab.js";
 import { jobs as fixtureJobs } from "../prototype/fixtures.js";
 import { evaluateOffline } from "../prototype/offline-evaluator.js";
 import { digestPreview } from "../prototype/digest.js";
@@ -39,6 +41,7 @@ export function createServer(){
 return http.createServer(async(req,res)=>{
   const url=new URL(req.url,"http://localhost");
   try{
+    if(url.pathname==="/api/lab"&&req.method==="GET")return send(res,200,runLab(getProfile()));
     if(url.pathname==="/api/jobs"&&req.method==="GET")return send(res,200,allJobs());
     if(url.pathname==="/api/digest-preview"&&req.method==="GET")return send(res,200,digestPreview(allJobs()));
     if(url.pathname==="/api/fixtures"&&req.method==="POST"){
@@ -57,7 +60,7 @@ return http.createServer(async(req,res)=>{
     if(url.pathname==="/api/profile"&&req.method==="GET")return send(res,200,getProfile());
     if(url.pathname==="/api/profile"&&req.method==="PUT"){
       const p=await body(req);
-      if(!Array.isArray(p.skills)||!Array.isArray(p.targetTitles)||!Array.isArray(p.workModes)||!Number.isFinite(p.preferredSalary)||p.preferredSalary<0||!p.weights||typeof p.weights!=="object")return send(res,400,{error:"Invalid profile"});
+      try{validateProfile(p)}catch(e){return send(res,400,{error:e.message})}
       db.prepare("UPDATE settings SET profile=? WHERE id=1").run(JSON.stringify({...defaults,...p}));db.exec("DELETE FROM evaluations");return send(res,200,getProfile());
     }
     if(url.pathname==="/api/jobs"&&req.method==="POST"){
