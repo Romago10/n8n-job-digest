@@ -27,3 +27,19 @@ Use **Load sample opportunities** to populate three explicitly fictional listing
 ## Next development steps
 
 Add a proper job-ingestion adapter, cross-source canonicalization, server-side profile validation, real data fixtures, structured model evaluations with explicit approval, and an email digest renderer reading stored results. Harden the API and authentication before considering deployment.
+
+
+## Offline evaluation milestone (November 2026)
+
+The application now includes five fictional job fixtures in `prototype/fixtures.js`, an offline deterministic structured evaluator in `prototype/offline-evaluator.js`, and an HTML digest generator in `prototype/digest.js`.
+
+**How to explore:** Run `npm start` (Node.js 24+). From Dashboard click **Load fictional fixtures**, then open any job in Opportunities and click **Evaluate offline**. Back on Dashboard click **Preview digest** to render the stored listings as a sandboxed email preview. This does not send email.
+
+**API:**
+- `POST /api/fixtures` inserts the five fictional records (idempotent by canonical URL).
+- `POST /api/jobs/:id/evaluate` computes and persists a rules-based JSON evaluation, not LLM inference.
+- `GET /api/digest-preview` returns a subject, sanitized HTML, and count.
+
+**Model extension boundary:** `prototype/evaluation-contract.js` defines a provider-independent prompt, payload, and output validator for future model integration. No provider is configured or called. The offline evaluator is a placeholder for testing the data flow; its explanation is based on explicit keyword overlap and must not be presented as independent AI reasoning. A future model adapter should use strict JSON validation, source grounding, timeouts and manual approval.
+
+**Safety and operational scope:** The fixture companies and URLs are invented; job links are not verified openings. No API keys, user accounts, deployments, scraping, schedules, or email sends. Existing stored evaluations are invalidated when candidate settings are modified. An integrated runtime test was attempted but unavailable due to network access restrictions; run `npm test` locally before relying on the app.
